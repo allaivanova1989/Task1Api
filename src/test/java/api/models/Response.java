@@ -10,6 +10,8 @@ public class Response {
     private int id;
     private String token;
 
+    private String error;
+
 
 
 }

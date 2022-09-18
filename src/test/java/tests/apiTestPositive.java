@@ -4,6 +4,7 @@ import api.models.*;
 import api.spec.BasicDetails;
 import api.spec.Specifications;
 import io.restassured.mapper.ObjectMapperType;
+import lombok.extern.log4j.Log4j2;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -13,12 +14,14 @@ import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+@Log4j2
 public class apiTestPositive {
 
     private Create create;
     private Update update;
 
-    private Registration registration;
+    private String token = "QpwL5tke4Pnpja7X4";
+    private RegistrationAndLogin registrationAndLogin;
 
       public boolean isPresentDesiredElement(List<User> list, String email){
         for(int i =0; i< list.size();i++){
@@ -27,13 +30,14 @@ public class apiTestPositive {
             }
 
         }
+
         return false;
     }
 
     @Test
     public void createUser() {
         Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
-
+        log.info("user creation");
         create = Create.builder()
                 .name(BasicDetails.userName)
                 .job("leader")
@@ -57,7 +61,7 @@ public class apiTestPositive {
         softAssertion.assertEquals(responseOfCreatingUser.getJob(), jobOfUser);
         softAssertion.assertAll();
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        log.info("user update");
         update = Update.builder()
                 .name(nameOfUser)
                 .job("zion resident")
@@ -78,8 +82,7 @@ public class apiTestPositive {
         softAssertion2.assertEquals(newJobOfUser, update.getJob());
         softAssertion2.assertAll();
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
-
+        log.info("deleting a user");
         given()
                 .when()
                 .delete("/api/users/2")
@@ -93,13 +96,14 @@ public class apiTestPositive {
 
         Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
 
-        registration = Registration.builder()
+        log.info("user registration");
+        registrationAndLogin = RegistrationAndLogin.builder()
                 .email(BasicDetails.successfulEmail)
                 .password(BasicDetails.successfulPassword)
                 .build();
 
         Response responseAboutRegistration = given()
-                .body(registration)
+                .body(registrationAndLogin)
                 .when()
                 .post("/api/register")
                 .then()
@@ -113,7 +117,7 @@ public class apiTestPositive {
         softAssertion.assertTrue(responseAboutRegistration.getToken()!=null);
         softAssertion.assertAll();
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+         log.info("check if the required user is in the list");
         List<User> users = given()
                 .when()
                 .get("/api/users?page=1")
@@ -123,6 +127,30 @@ public class apiTestPositive {
 
         assertTrue(isPresentDesiredElement(users, BasicDetails.successfulEmail));
 
+    }
+
+    @Test
+    public void SuccessfulLogin(){
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+
+        log.info("user logs in");
+        registrationAndLogin = RegistrationAndLogin.builder()
+                .email(BasicDetails.successfulEmail)
+                .password("cityslicka")
+                .build();
+
+
+        Response responseForLogin = given()
+                .body(registrationAndLogin)
+                .when()
+                .post("/api/login")
+                .then().log().all()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Response.class, ObjectMapperType.GSON);
+
+        assertEquals(responseForLogin.getToken(),token);
     }
 
 

@@ -7,4 +7,6 @@ public class BasicDetails {
     public static final String successfulPassword = "pistol";
     public static final String userName = "morpheus";
 
+    public static final String errorMessage = "Missing password";
+
 }
