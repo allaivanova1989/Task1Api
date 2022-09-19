@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Update {
+public class CreateAndUpdateModel {
     private String name;
     private String job;
 }

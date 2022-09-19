@@ -17,11 +17,9 @@ import static org.testng.Assert.assertTrue;
 @Log4j2
 public class apiTestPositive {
 
-    private Create create;
-    private Update update;
-
-    private String token = "QpwL5tke4Pnpja7X4";
-    private RegistrationAndLogin registrationAndLogin;
+    private CreateAndUpdateModel createAndUpdateModel;
+      private String token = "QpwL5tke4Pnpja7X4";
+    private RegistrationAndLoginModel registrationAndLoginModel;
 
       public boolean isPresentDesiredElement(List<User> list, String email){
         for(int i =0; i< list.size();i++){
@@ -36,18 +34,18 @@ public class apiTestPositive {
 
     @Test
     public void createUser() {
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK201());
         log.info("user creation");
-        create = Create.builder()
+        createAndUpdateModel = CreateAndUpdateModel.builder()
                 .name(BasicDetails.userName)
                 .job("leader")
                 .build();
 
-        String nameOfUser = create.getName();
-        String jobOfUser = create.getJob();
+        String nameOfUser = createAndUpdateModel.getName();
+        String jobOfUser = createAndUpdateModel.getJob();
 
         Response responseOfCreatingUser = given()
-                .body(create)
+                .body(createAndUpdateModel)
                 .when()
                 .post("/api/users")
                 .then()
@@ -61,14 +59,16 @@ public class apiTestPositive {
         softAssertion.assertEquals(responseOfCreatingUser.getJob(), jobOfUser);
         softAssertion.assertAll();
 
+
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK200());
         log.info("user update");
-        update = Update.builder()
+        createAndUpdateModel = CreateAndUpdateModel.builder()
                 .name(nameOfUser)
                 .job("zion resident")
                 .build();
 
         Response responseForUpdatingJob = given()
-                .body(update)
+                .body(createAndUpdateModel)
                 .when()
                 .put("/api/users/2")
                 .then().log().all()
@@ -79,9 +79,10 @@ public class apiTestPositive {
 
         String newJobOfUser = responseForUpdatingJob.getJob();
         SoftAssert softAssertion2 = new SoftAssert();
-        softAssertion2.assertEquals(newJobOfUser, update.getJob());
+        softAssertion2.assertEquals(newJobOfUser, createAndUpdateModel.getJob());
         softAssertion2.assertAll();
 
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK204());
         log.info("deleting a user");
         given()
                 .when()
@@ -94,16 +95,16 @@ public class apiTestPositive {
     @Test
     public void successfulRegistration(){
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK200());
 
         log.info("user registration");
-        registrationAndLogin = RegistrationAndLogin.builder()
+        registrationAndLoginModel = RegistrationAndLoginModel.builder()
                 .email(BasicDetails.successfulEmail)
                 .password(BasicDetails.successfulPassword)
                 .build();
 
         Response responseAboutRegistration = given()
-                .body(registrationAndLogin)
+                .body(registrationAndLoginModel)
                 .when()
                 .post("/api/register")
                 .then()
@@ -117,6 +118,7 @@ public class apiTestPositive {
         softAssertion.assertTrue(responseAboutRegistration.getToken()!=null);
         softAssertion.assertAll();
 
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK200());
          log.info("check if the required user is in the list");
         List<User> users = given()
                 .when()
@@ -131,17 +133,17 @@ public class apiTestPositive {
 
     @Test
     public void SuccessfulLogin(){
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecOK200());
 
         log.info("user logs in");
-        registrationAndLogin = RegistrationAndLogin.builder()
+        registrationAndLoginModel = RegistrationAndLoginModel.builder()
                 .email(BasicDetails.successfulEmail)
                 .password("cityslicka")
                 .build();
 
 
         Response responseForLogin = given()
-                .body(registrationAndLogin)
+                .body(registrationAndLoginModel)
                 .when()
                 .post("/api/login")
                 .then().log().all()

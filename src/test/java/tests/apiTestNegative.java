@@ -1,6 +1,6 @@
 package tests;
 
-import api.models.RegistrationAndLogin;
+import api.models.RegistrationAndLoginModel;
 import api.models.Response;
 import api.spec.BasicDetails;
 import api.spec.Specifications;
@@ -14,15 +14,15 @@ import static io.restassured.RestAssured.given;
 
 @Log4j2
 public class apiTestNegative {
-    private RegistrationAndLogin registration;
+    private RegistrationAndLoginModel registration;
 
     @Test
     public void unsuccessfulRegistration() {
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecError400());
 
         log.info("user registration");
-        registration = RegistrationAndLogin.builder()
+        registration = RegistrationAndLoginModel.builder()
                 .email("sydney@fife")
                 .build();
 
@@ -47,10 +47,10 @@ public class apiTestNegative {
     @Test
     public void unsuccessfulLogin() {
 
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecError400());
 
         log.info("user registration");
-        registration = RegistrationAndLogin.builder()
+        registration = RegistrationAndLoginModel.builder()
                 .email("sydney@fife")
                 .build();
 
@@ -74,8 +74,7 @@ public class apiTestNegative {
 
     @Test
     public void userAbsenceCheck(){
-
-        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL));
+        Specifications.installSpecification(Specifications.requestSpec(BasicDetails.URL),Specifications.responseSpecError404());
 
         log.info("user absence check");
         given()
