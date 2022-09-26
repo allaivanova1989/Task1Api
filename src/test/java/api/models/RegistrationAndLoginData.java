@@ -10,4 +10,9 @@ import lombok.Data;
 public class RegistrationAndLoginData {
     private String email;
     private String password;
+
+    public RegistrationAndLoginData(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

@@ -10,4 +10,9 @@ import lombok.Data;
 public class CreateAndUpdateData {
     private String name;
     private String job;
+
+    public CreateAndUpdateData(String name, String job) {
+        this.name = name;
+        this.job = job;
+    }
 }

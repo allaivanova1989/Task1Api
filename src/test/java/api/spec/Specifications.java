@@ -3,17 +3,24 @@ package api.spec;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+import java.io.IOException;
+
+import static utils.Constants.PropertyName.URL;
+import static utils.PropertyReader.getProperty;
+
 public class Specifications {
-    public static RequestSpecification requestSpec(String url) {
+    public static RequestSpecification requestSpec() throws IOException {
 
         return new RequestSpecBuilder()
                 .addFilter(new AllureRestAssured())
-                .setBaseUri(url)
+                .setBaseUri(getProperty(URL))
                 .setContentType(ContentType.JSON)
+                .log(LogDetail.ALL)
                 .build();
     }
 
