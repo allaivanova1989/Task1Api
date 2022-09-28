@@ -6,14 +6,20 @@ import java.util.Properties;
 
 public class PropertyReader {
 
-    private static Properties prop() throws IOException {
-        Properties properties = new Properties();
-        FileInputStream fileInputStream = new FileInputStream("src/test/resources/config.properties");
-        properties.load(fileInputStream);
-        return properties;
+    static Properties properties;
+
+
+    static {
+        properties = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream("src/test/resources/config.properties");) {
+            properties.load(fileInputStream);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
-    public static String getProperty(String propertyName) throws IOException {
-        return prop().getProperty(propertyName);
+    public static String getPropertyByName(String propertyName) {
+        return properties.getProperty(propertyName);
     }
+
 }

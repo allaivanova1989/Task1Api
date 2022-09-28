@@ -1,62 +1,52 @@
 package tests;
 
 import api.models.RegistrationAndLoginData;
-import api.spec.Specifications;
 import lombok.extern.log4j.Log4j2;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static utils.Constants.PropertyName.*;
-import static utils.PropertyReader.getProperty;
+import static utils.PropertyReader.getPropertyByName;
 
 @Log4j2
-public class ApiNegativeTest {
+public class ApiNegativeTest extends BaseTest {
 
     @Test
-    public void unsuccessfulRegistration() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void unsuccessfulRegistration() {
         log.info("user registration");
         RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData("sydney@fife", "");
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getProperty(REGISTER))
+                .post(getPropertyByName("registration"))
                 .then()
                 .statusCode(400)
-                .body("error", equalTo(getProperty(ERROR_MESSAGE)));
+                .body("error", equalTo(getPropertyByName("errorMessage")));
 
     }
 
     @Test
-    public void unsuccessfulLogin() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void unsuccessfulLogin() {
         log.info("user log in");
         RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData("sydney@fife", "");
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getProperty(LOGIN))
+                .post(getPropertyByName("login"))
                 .then()
                 .statusCode(400)
-                .body("error", equalTo(getProperty(ERROR_MESSAGE)));
+                .body("error", equalTo(getPropertyByName("errorMessage")));
 
     }
 
     @Test
-    public void userAbsenceCheck() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void userAbsenceCheck() {
         log.info("user absence check");
         given()
                 .when()
-                .get(getProperty(SINGLE_USER))
+                .get(getPropertyByName("singleUserNotFound"))
                 .then()
                 .assertThat()
                 .statusCode(404);

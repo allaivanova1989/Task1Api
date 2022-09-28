@@ -1,36 +1,32 @@
 package tests;
 
 import api.models.*;
-import api.spec.Specifications;
 import lombok.extern.log4j.Log4j2;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.*;
-import static utils.Constants.PropertyName.*;
-import static utils.PropertyReader.getProperty;
+import static utils.PropertyReader.getPropertyByName;
 
 @Log4j2
-public class ApiPositiveTest {
+public class ApiPositiveTest extends BaseTest {
 
     @Test
-    public void createUser() throws IOException {
+    public void createUser() {
         String jobOfUser = "leader";
-        Specifications.installSpecification(Specifications.requestSpec());
         log.info("user creation");
         CreateAndUpdateData createAndUpdateData =
-                new CreateAndUpdateData(getProperty(USER_NAME), jobOfUser);
+                new CreateAndUpdateData(getPropertyByName("userName"), jobOfUser);
 
         String currentTime = Clock.systemUTC().instant().toString().replaceAll("(.{13})$", "");
         given()
                 .body(createAndUpdateData)
                 .when()
-                .post(getProperty(CREATE))
+                .post(getPropertyByName("create"))
                 .then()
                 .assertThat()
                 .statusCode(201)
@@ -39,41 +35,35 @@ public class ApiPositiveTest {
                         "createdAt", containsString(currentTime),
                         "id", notNullValue());
 
-
     }
 
     @Test
-    public void updateUser() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void updateUser() {
         log.info("updating user 2");
         String updatedJob = "zion resident";
         CreateAndUpdateData createAndUpdateData =
-                new CreateAndUpdateData(getProperty(USER_NAME), updatedJob);
+                new CreateAndUpdateData(getPropertyByName("userName"), updatedJob);
 
         String currentTime = Clock.systemUTC().instant().toString().replaceAll("(.{13})$", "");
 
         given()
                 .body(createAndUpdateData)
                 .when()
-                .put(getProperty(UPDATE))
+                .put(getPropertyByName("user2"))
                 .then()
                 .statusCode(200)
                 .body("name", notNullValue(),
                         "job", notNullValue(),
                         "updatedAt", containsString(currentTime));
 
-
     }
 
     @Test
-    public void deleteUser() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void deleteUser() {
         log.info("Saving of user2");
         SingleUser user2 = given()
                 .when()
-                .get(getProperty(DELETE))
+                .get(getPropertyByName("user2"))
                 .then()
                 .statusCode(200)
                 .extract()
@@ -85,7 +75,7 @@ public class ApiPositiveTest {
         log.info("deleting user 2");
         given()
                 .when()
-                .delete(getProperty(DELETE))
+                .delete(getPropertyByName("user2"))
                 .then()
                 .assertThat()
                 .statusCode(204);
@@ -94,7 +84,7 @@ public class ApiPositiveTest {
         log.info("check if the deleted user2 is not in the list");
         List<User> users = given()
                 .when()
-                .get(getProperty(LIST_USER))
+                .get(getPropertyByName("listUsers"))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -104,21 +94,18 @@ public class ApiPositiveTest {
     }
 
     @Test
-    public void successfulRegistration() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void successfulRegistration() {
         log.info("user registration");
         RegistrationAndLoginData registrationAndLoginData =
-                new RegistrationAndLoginData(getProperty(SUCCESSFUL_EMAIL), getProperty(SUCCESSFUL_PASSWORD));
+                new RegistrationAndLoginData(getPropertyByName("successfulEmail"), getPropertyByName("successfulPassword"));
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getProperty(REGISTER))
+                .post(getPropertyByName("registration"))
                 .then()
                 .assertThat()
                 .statusCode(200)
-
                 .body("token", notNullValue(),
                         "id", notNullValue());
 
@@ -126,7 +113,7 @@ public class ApiPositiveTest {
         log.info("check if the required user is in the list");
         List<User> users = given()
                 .when()
-                .get(getProperty(LIST_USER))
+                .get(getPropertyByName("listUsers"))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -136,18 +123,16 @@ public class ApiPositiveTest {
     }
 
     @Test
-    public void successfulLogin() throws IOException {
-        Specifications.installSpecification(Specifications.requestSpec());
-
+    public void successfulLogin() {
         log.info("user logs in");
-        RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData(getProperty(SUCCESSFUL_EMAIL), "cityslicka");
-
+        RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData(getPropertyByName("successfulEmail"), "cityslicka");
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getProperty(LOGIN))
+                .post(getPropertyByName("login"))
                 .then()
+                .assertThat()
                 .statusCode(200)
                 .body("token", notNullValue());
 
