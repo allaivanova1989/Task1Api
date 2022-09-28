@@ -18,7 +18,7 @@ public class PropertyReader {
         }
     }
 
-    public static String getPropertyByName(String propertyName) {
+    public static String getProperty(String propertyName) {
         return properties.getProperty(propertyName);
     }
 

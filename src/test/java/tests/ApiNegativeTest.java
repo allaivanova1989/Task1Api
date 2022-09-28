@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
-import static utils.PropertyReader.getPropertyByName;
+import static utils.PropertyReader.getProperty;
 
 @Log4j2
 public class ApiNegativeTest extends BaseTest {
@@ -19,10 +19,10 @@ public class ApiNegativeTest extends BaseTest {
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getPropertyByName("registration"))
+                .post(getProperty("registration"))
                 .then()
                 .statusCode(400)
-                .body("error", equalTo(getPropertyByName("errorMessage")));
+                .body("error", equalTo(getProperty("errorMessage")));
 
     }
 
@@ -34,10 +34,10 @@ public class ApiNegativeTest extends BaseTest {
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getPropertyByName("login"))
+                .post(getProperty("login"))
                 .then()
                 .statusCode(400)
-                .body("error", equalTo(getPropertyByName("errorMessage")));
+                .body("error", equalTo(getProperty("errorMessage")));
 
     }
 
@@ -46,7 +46,7 @@ public class ApiNegativeTest extends BaseTest {
         log.info("user absence check");
         given()
                 .when()
-                .get(getPropertyByName("singleUserNotFound"))
+                .get(getProperty("singleUserNotFound"))
                 .then()
                 .assertThat()
                 .statusCode(404);

@@ -5,12 +5,10 @@ import lombok.extern.log4j.Log4j2;
 import org.testng.annotations.Test;
 
 import java.time.Clock;
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.testng.Assert.*;
-import static utils.PropertyReader.getPropertyByName;
+import static utils.PropertyReader.getProperty;
 
 @Log4j2
 public class ApiPositiveTest extends BaseTest {
@@ -20,13 +18,13 @@ public class ApiPositiveTest extends BaseTest {
         String jobOfUser = "leader";
         log.info("user creation");
         CreateAndUpdateData createAndUpdateData =
-                new CreateAndUpdateData(getPropertyByName("userName"), jobOfUser);
+                new CreateAndUpdateData(getProperty("userName"), jobOfUser);
 
         String currentTime = Clock.systemUTC().instant().toString().replaceAll("(.{13})$", "");
         given()
                 .body(createAndUpdateData)
                 .when()
-                .post(getPropertyByName("create"))
+                .post(getProperty("create"))
                 .then()
                 .assertThat()
                 .statusCode(201)
@@ -42,14 +40,14 @@ public class ApiPositiveTest extends BaseTest {
         log.info("updating user 2");
         String updatedJob = "zion resident";
         CreateAndUpdateData createAndUpdateData =
-                new CreateAndUpdateData(getPropertyByName("userName"), updatedJob);
+                new CreateAndUpdateData(getProperty("userName"), updatedJob);
 
         String currentTime = Clock.systemUTC().instant().toString().replaceAll("(.{13})$", "");
 
         given()
                 .body(createAndUpdateData)
                 .when()
-                .put(getPropertyByName("user2"))
+                .put(getProperty("user2"))
                 .then()
                 .statusCode(200)
                 .body("name", notNullValue(),
@@ -61,35 +59,32 @@ public class ApiPositiveTest extends BaseTest {
     @Test
     public void deleteUser() {
         log.info("Saving of user2");
-        SingleUser user2 = given()
+        String userEmail = given()
                 .when()
-                .get(getPropertyByName("user2"))
+                .get(getProperty("user2"))
                 .then()
                 .statusCode(200)
                 .extract()
-                .body()
-                .as(SingleUser.class);
-
-        String emailOfDeletedUser = user2.getData().getEmail();
+                .path("data.email");
 
         log.info("deleting user 2");
         given()
                 .when()
-                .delete(getPropertyByName("user2"))
+                .delete(getProperty("user2"))
                 .then()
                 .assertThat()
                 .statusCode(204);
 
 
         log.info("check if the deleted user2 is not in the list");
-        List<User> users = given()
+        given()
                 .when()
-                .get(getPropertyByName("listUsers"))
+                .get(getProperty("listUsers"))
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .extract().body().jsonPath().getList("data", User.class);
-        assertFalse(users.stream().anyMatch(anyUser -> anyUser.getEmail().equalsIgnoreCase(emailOfDeletedUser)));
+                .body("data.email", allOf(not(hasItem(userEmail))));
+
 
     }
 
@@ -97,12 +92,12 @@ public class ApiPositiveTest extends BaseTest {
     public void successfulRegistration() {
         log.info("user registration");
         RegistrationAndLoginData registrationAndLoginData =
-                new RegistrationAndLoginData(getPropertyByName("successfulEmail"), getPropertyByName("successfulPassword"));
+                new RegistrationAndLoginData(getProperty("successfulEmail"), getProperty("successfulPassword"));
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getPropertyByName("registration"))
+                .post(getProperty("registration"))
                 .then()
                 .assertThat()
                 .statusCode(200)
@@ -111,26 +106,26 @@ public class ApiPositiveTest extends BaseTest {
 
 
         log.info("check if the required user is in the list");
-        List<User> users = given()
+        given()
                 .when()
-                .get(getPropertyByName("listUsers"))
+                .get(getProperty("listUsers"))
                 .then()
                 .assertThat()
                 .statusCode(200)
-                .extract().body().jsonPath().getList("data", User.class);
-        assertTrue(users.stream().anyMatch(user -> user.getEmail().equalsIgnoreCase("eve.holt@reqres.in")));
+                .body("data.email", anyOf(hasItem("eve.holt@reqres.in")));
+
 
     }
 
     @Test
     public void successfulLogin() {
         log.info("user logs in");
-        RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData(getPropertyByName("successfulEmail"), "cityslicka");
+        RegistrationAndLoginData registrationAndLoginData = new RegistrationAndLoginData(getProperty("successfulEmail"), "cityslicka");
 
         given()
                 .body(registrationAndLoginData)
                 .when()
-                .post(getPropertyByName("login"))
+                .post(getProperty("login"))
                 .then()
                 .assertThat()
                 .statusCode(200)
