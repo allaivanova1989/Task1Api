@@ -14,9 +14,10 @@ import static utils.PropertyReader.getProperty;
 public class BaseTest {
     @BeforeSuite
     public void setup() {
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
         RestAssured.requestSpecification = new RequestSpecBuilder()
                 .addFilter(new AllureRestAssured())
+                .addFilter(new RequestLoggingFilter())
+                .addFilter( new ResponseLoggingFilter())
                 .setBaseUri(getProperty("url"))
                 .setContentType(ContentType.JSON)
                 .build();
